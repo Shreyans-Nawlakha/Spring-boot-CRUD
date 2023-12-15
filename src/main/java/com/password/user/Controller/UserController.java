@@ -150,6 +150,7 @@ public class UserController {
         if (!Objects.equals(file.getContentType(), "application/pdf")) {
             return ResponseEntity.badRequest().body("Invalid file format");
         }
+
         String [] name = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         String fileName = "D:\\Spring Boot\\user\\src\\output\\"+name[0]+".html";
         PDDocument document = PDDocument.load(file.getInputStream());
