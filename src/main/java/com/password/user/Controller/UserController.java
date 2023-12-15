@@ -3,11 +3,19 @@ package com.password.user.Controller;
 import com.password.user.Entity.User;
 import com.password.user.Repository.UserRepository;
 import com.password.user.Service.UserService;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.codehaus.jettison.json.JSONObject;
+import org.fit.pdfdom.PDFDomTree;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -135,6 +143,22 @@ public class UserController {
         }
 
         return response;
+    }
+
+    @PostMapping("/convert")
+    public ResponseEntity<String> convertPdfToHtml(@RequestParam("file") MultipartFile file) throws IOException, IOException {
+        if (!Objects.equals(file.getContentType(), "application/pdf")) {
+            return ResponseEntity.badRequest().body("Invalid file format");
+        }
+        String [] name = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        String fileName = "D:\\Spring Boot\\user\\src\\output\\"+name[0]+".html";
+        PDDocument document = PDDocument.load(file.getInputStream());
+        PDFDomTree parser = new PDFDomTree();
+        Writer output = new PrintWriter(fileName, StandardCharsets.UTF_8);
+        parser.writeText(document, output);
+        output.close();
+        document.close();
+        return ResponseEntity.ok(document.toString());
     }
 
 }
